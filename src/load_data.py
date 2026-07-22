@@ -1,11 +1,13 @@
-import numpy as np
 import pandas as pd
 
-# feature to add(rolling form) -> add features 1 by 1 and compare effect 
-filename = "0506"
-df_raw = pd.read_csv(f"../data/{filename}.csv") # loads respective year csv into a dataframe (df)
-df_feats = pd.DataFrame()
+from pathlib import Path
 
-
-# TODO: rolling home/away integration
-# for the respective team, select by the team, slice last 6 games/view df[<home_team>][cur - 6 :cur]
+dir = Path("data/")
+histories = []
+for file in dir.iterdir():
+    df = pd.read_csv(file)
+    histories.append(df)
+df = pd.concat(histories)
+df["Date"] = pd.to_datetime(df["Date"], format="mixed", dayfirst=True)
+# df = df.reset_index(drop=True) # possible to remove this line-> allow to find different seasons-> reset form...
+df.to_csv("data/history.csv", index=False)

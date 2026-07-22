@@ -2,6 +2,7 @@ import pandas as pd
 
 
 def rollingForm():
+    # should output +- int 
     pass
 
 def elo():
