@@ -30,7 +30,8 @@ PROMOTED_PENALTY = 100.0       # promoted teams start this far below league mean
 @dataclass
 class EloSystem:
     ratings: dict = field(default_factory=dict)
-    seen_this_season: set = field(default_factory=set)
+    seen_this_season: set = field(default_factory=set)   # teams active in the CURRENT season
+    seen_last_season: set = field(default_factory=set)   # teams active in the season just concluded
     current_season: object = None
     completed_seasons: int = 0   # how many season *transitions* we've been through
 
@@ -44,38 +45,62 @@ class EloSystem:
     # ---------- rating access / initialization ----------
 
     def get_rating(self, team: str) -> float:
-        if team not in self.ratings:
-            # First time we've ever seen this team.
+        never_seen = team not in self.ratings
+        # "Returning" = has a rating on file, but didn't play last season
+        # AND hasn't already been re-priced this season (guards against
+        # re-triggering the reset on every subsequent match this season).
+        returning_after_absence = (
+            not never_seen
+            and self.completed_seasons > 0
+            and team not in self.seen_last_season
+            and team not in self.seen_this_season
+        )
+
+        if never_seen or returning_after_absence:
             if self.completed_seasons > 0:
-                # We've already been through at least one season boundary,
-                # so a brand-new team now is a genuine promotion, not just
-                # a team we haven't reached yet in the current season's
-                # chronological match list.
+                # Either a genuine first-ever promotion, or a team coming
+                # back up after being relegated out of the league for a
+                # while. Treat both the same way: reset to a fixed
+                # below-average rating, since in both cases the squad's
+                # current quality is a real unknown relative to a team
+                # that's been continuously playing in this league.
                 league_mean = sum(self.ratings.values()) / len(self.ratings)
                 self.ratings[team] = league_mean - PROMOTED_PENALTY
             else:
                 # Still within the very first season we've ever processed:
-                # every team is "new" simply because we haven't hit their
-                # first fixture yet. Flat baseline for all of them.
+                # flat baseline for everyone.
                 self.ratings[team] = BASE_ELO
+
         return self.ratings[team]
 
     # ---------- season boundary handling ----------
 
     def maybe_start_new_season(self, season) -> None:
         """Call this before processing each match. Detects season changes
-        and applies regression-to-mean for every team seen so far."""
+        and applies regression-to-mean -- but ONLY to teams that actually
+        played last season. Teams sitting out (relegated) are left frozen;
+        they get repriced as "returning" the moment they reappear, via
+        get_rating(), rather than drifting toward the mean while absent."""
         if self.current_season is None:
             self.current_season = season
             return
 
         if season != self.current_season:
-            league_mean = sum(self.ratings.values()) / len(self.ratings)
-            for team in self.ratings:
+            # Mean computed only over teams that were actually part of the
+            # league last season -- stale relegated teams shouldn't drag
+            # on what "average" means for the teams still playing.
+            active_ratings = [self.ratings[t] for t in self.seen_this_season]
+            league_mean = sum(active_ratings) / len(active_ratings)
+
+            for team in self.seen_this_season:
                 self.ratings[team] = (
                     (1 - SEASON_REGRESSION) * self.ratings[team]
                     + SEASON_REGRESSION * league_mean
                 )
+            # Teams NOT in seen_this_season (i.e. relegated/absent) are
+            # simply left untouched here.
+
+            self.seen_last_season = self.seen_this_season
             self.current_season = season
             self.seen_this_season = set()
             self.completed_seasons += 1
