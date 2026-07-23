@@ -4,7 +4,8 @@ import feats
 
 df = pd.read_csv("data/history.csv", low_memory=False)
 
-elo = feats.elo(df)
+# cannot feed relevant teams only-> will affect league mean
+elo = feats.elo(df) 
 print(elo)
 
     

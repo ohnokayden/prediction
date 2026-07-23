@@ -4,14 +4,15 @@ import pandas as pd
 
 from pathlib import Path
 
-dir = Path("data/")
+dir = Path("data/raw/")
 histories = []
 for file in dir.iterdir():
     df = pd.read_csv(file, low_memory=False)
     series = pd.Series(Path(file).stem, index=range(380))
+    series.name = "season"
     df = pd.concat([df,series], axis=1)
     histories.append(df)
 df = pd.concat(histories)
 df["Date"] = pd.to_datetime(df["Date"], format="mixed", dayfirst=True)
 # df = df.reset_index(drop=True) # possible to remove this line-> allow to find different seasons-> reset form...
-df.to_csv("history.csv", index=False)
+df.to_csv("data/history.csv", index=False)
