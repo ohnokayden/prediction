@@ -15,6 +15,10 @@ Design decisions (locked in):
 - Every function here only uses information available strictly BEFORE
   the match being processed -- ratings are updated AFTER computing the
   probability/prediction for a match, never before.
+
+How to use:
+- Feed it a df full of matches which we want to train on-> loop thru 
+    until it reaches the latest match
 """
 
 from dataclasses import dataclass, field
