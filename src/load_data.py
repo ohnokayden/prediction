@@ -1,11 +1,18 @@
-import numpy as np
+# load_data,py serves to collate and clean the data from the 05/06 to 25/26 season
+# ENSURE CMD IS ONLY RUN FROM THE ROOT DIR
 import pandas as pd
 
-# feature to add(rolling form) -> add features 1 by 1 and compare effect 
-filename = "0506"
-df_raw = pd.read_csv(f"../data/{filename}.csv") # loads respective year csv into a dataframe (df)
-df_feats = pd.DataFrame()
+from pathlib import Path
 
-
-# TODO: rolling home/away integration
-# for the respective team, select by the team, slice last 6 games/view df[<home_team>][cur - 6 :cur]
+dir = Path("data/raw/")
+histories = []
+for file in dir.iterdir():
+    df = pd.read_csv(file, low_memory=False)
+    series = pd.Series(Path(file).stem, index=range(380))
+    series.name = "season"
+    df = pd.concat([df,series], axis=1)
+    histories.append(df)
+df = pd.concat(histories)
+df["Date"] = pd.to_datetime(df["Date"], format="mixed", dayfirst=True)
+# df = df.reset_index(drop=True) # possible to remove this line-> allow to find different seasons-> reset form...
+df.to_csv("data/history.csv", index=False)
