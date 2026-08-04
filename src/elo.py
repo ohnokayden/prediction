@@ -98,8 +98,8 @@ class EloSystem:
 
             for team in self.seen_this_season:
                 self.ratings[team] = (
-                    (1 - SEASON_REGRESSION) * self.ratings[team]
-                    + SEASON_REGRESSION * league_mean
+                    # (1 - SEASON_REGRESSION) * self.ratings[team] + SEASON_REGRESSION * league_mean
+                    1500 + (self.ratings[team] - 1500) * 0.7
                 )
             # Teams NOT in seen_this_season (i.e. relegated/absent) are
             # simply left untouched here.

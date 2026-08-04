@@ -2,8 +2,12 @@ import pandas as pd
 
 from elo import EloSystem
 
-def rollingForm():
+def rollingForm(df: pd.DataFrame):
     # should output +- int 
+    # pass in the date, HomeTeam, and AwayTeam
+    # filter by the date, collect prev 5 home/away result
+    # include check for required min number of games
+
     pass
 
 def elo(df: pd.DataFrame):
