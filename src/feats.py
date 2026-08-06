@@ -2,10 +2,12 @@ import pandas as pd
 
 from elo import EloSystem
 
-def rollingForm(df: pd.DataFrame):
+def rollingForm(df: pd.DataFrame, date: pd.DatetimeIndex, HomeTeam: str, AwayTeam: str):
     # should output +- int 
     # pass in the date, HomeTeam, and AwayTeam
     # filter by the date, collect prev 5 home/away result
+    homeGames = df[(df["date"] < date) & (df["HomeTeam"] == HomeTeam)]
+
     # include check for required min number of games
 
     pass
@@ -27,7 +29,7 @@ def h2h():
     # take from prev szns -> past 5 h2h games? 
     pass
 
-def empirical_bucket_diagnostic(
+def empiricalBucketDiagnostic(
     df: pd.DataFrame,
     feature_col: str,
     target_col: str,
