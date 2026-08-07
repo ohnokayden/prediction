@@ -9,8 +9,8 @@ histories = []
 for file in dir.iterdir():
     df = pd.read_csv(file, low_memory=False)
     series = pd.Series(Path(file).stem, index=range(380))
-    series.astype(dtype="int64")
-    series.apply(lambda x: x // 100 + 2000)
+    series = series.astype(dtype="int64")
+    series = series.apply(lambda x: x // 100 + 2000)
     series.name = "season"
     df = pd.concat([df,series], axis=1)
     histories.append(df)
