@@ -27,7 +27,7 @@ from dataclasses import dataclass, field
 BASE_ELO = 1500.0
 HOME_ADVANTAGE = 60.0          # added to home rating for win-prob calc only
 K_FACTOR = 20.0
-SEASON_REGRESSION = 0.25       # fraction pulled toward league mean each season
+SEASON_REGRESSION = 0.7       # fraction pulled toward league mean each season
 PROMOTED_PENALTY = 100.0       # promoted teams start this far below league mean
 
 
@@ -99,7 +99,7 @@ class EloSystem:
             for team in self.seen_this_season:
                 self.ratings[team] = (
                     # (1 - SEASON_REGRESSION) * self.ratings[team] + SEASON_REGRESSION * league_mean
-                    1500 + (self.ratings[team] - 1500) * 0.7
+                    BASE_ELO + (self.ratings[team] - BASE_ELO) * SEASON_REGRESSION
                 )
             # Teams NOT in seen_this_season (i.e. relegated/absent) are
             # simply left untouched here.
