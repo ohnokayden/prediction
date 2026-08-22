@@ -25,9 +25,24 @@ def squadValue():
     # consider using a comparative value
     pass
 
-def h2h():
-    # take from prev szns -> past 5 h2h games? 
-    pass
+
+# returns the W,D,L 
+def h2h(df: pd.DataFrame, date: pd.DatetimeIndex, HomeTeam: str, AwayTeam: str, games = 5):
+    # limit dates to only the games before the match, excluding it
+    df = df[df["Date"] < date]
+    # choose games where the teams face each other
+    df = df[(df["HomeTeam"] == HomeTeam) | (df["HomeTeam"] == AwayTeam)]
+    df = df[(df["AwayTeam"] == HomeTeam) | (df["AwayTeam"] == AwayTeam)]
+    df = df.tail(5)
+    score = [0,0,0]
+    for row in df.itertuples():
+        if row.FTR == "H":
+            score[0] += 1
+        elif row.FTR == "D":
+            score [1] += 1
+        else: 
+            score[2] += 1
+    return score
 
 def empiricalBucketDiagnostic(
     df: pd.DataFrame,
