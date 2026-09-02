@@ -1,5 +1,4 @@
 import pandas as pd
-
 from elo import EloSystem
 
 def rollingForm(df: pd.DataFrame, date: pd.DatetimeIndex, HomeTeam: str, AwayTeam: str):
@@ -12,14 +11,17 @@ def rollingForm(df: pd.DataFrame, date: pd.DatetimeIndex, HomeTeam: str, AwayTea
 
     pass
 
+
 def elo(df: pd.DataFrame):
-    # return the elo results of the latest game
+    """ takes in the history of matches and returns the same df with the feat "elo_diff" as a new column """
     elo = EloSystem()
     feat = []
     for row in df.itertuples():
         res = elo.process_match(home=row.HomeTeam, away=row.AwayTeam, result=row.FTR, season=row.season)
         feat.append(res)
-
+    feat = pd.DataFrame(feat)
+    feat = pd.concat([df, feat], axis=1)
+    feat["elo_diff"] = (feat["home_elo_pre_match"] - feat["away_elo_pre_match"]) 
     return feat
 
 def squadValue():
