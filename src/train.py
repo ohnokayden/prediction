@@ -2,7 +2,7 @@ from sklearn.linear_model import LogisticRegression, LogisticRegressionCV
 from sklearn.preprocessing import LabelEncoder
 import pandas as pd
 import numpy as np
-from feats import h2h
+from feats import h2h, elo
 from elo import EloSystem
 from sklearn.metrics import log_loss, accuracy_score
 
@@ -40,10 +40,10 @@ model = LogisticRegression(max_iter=1000)
 train = data[(data["season"] > 2011) & (data["season"] < 2023)]
 test = data[data["season"] >= 2023]
 
-trainX = train[["WR","MP","elo_diff"]]
+trainX = train[["WR","elo_diff"]]
 trainY = train["FTR"]
 
-testX = test[["WR","MP","elo_diff"]]
+testX = test[["WR","elo_diff"]]
 testY = test["FTR"]
 
 model = model.fit(trainX,trainY)
